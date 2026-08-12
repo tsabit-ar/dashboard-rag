@@ -39,7 +39,7 @@ export default function LoginPage() {
             SELAMAT DATANG
           </span>
           <h1 className="font-serif text-3xl text-slate-100 font-normal">
-            PPT Generator Hub
+            PPT Prompt Generator
           </h1>
           <p className="font-mono text-xs text-slate-400 mt-2">
             Akses dashboard pembuatan master prompt
@@ -88,7 +88,7 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full bg-amber-500 hover:bg-amber-400 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 font-mono text-xs font-bold py-3.5 rounded-lg transition-all uppercase tracking-wider shadow-lg shadow-amber-500/10 mt-2"
           >
-            {loading ? 'Authenticating...' : 'Masuk System'}
+            {loading ? 'Authenticating...' : 'Masuk'}
           </button>
         </form>
       </div>
