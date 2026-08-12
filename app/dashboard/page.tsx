@@ -258,7 +258,7 @@ export default function DashboardPage() {
       {/* Bagian Riwayat Prompt */}
       <div className="mt-8 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
         <h3 className="font-bold text-gray-800 text-base mb-4 flex items-center gap-2">
-          🕒 Riwayat Master Prompt Anda
+          🕒 Riwayat Prompt Anda
         </h3>
 
         {loadingHistory ? (
