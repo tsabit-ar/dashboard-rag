@@ -135,10 +135,10 @@ export default function DashboardPage() {
       <div className="flex justify-between items-center bg-slate-900/60 p-4 rounded-2xl border border-slate-800 mb-6 backdrop-blur-md">
         <div>
           <span className="font-mono text-[10px] text-amber-500 tracking-widest uppercase block">
-            SCAILE OPERATIONS
+            Welcome 
           </span>
           <h1 className="font-serif text-2xl text-slate-100 font-normal">
-            PPT Generator Hub
+            PPT Prompt Generator
           </h1>
         </div>
         <button

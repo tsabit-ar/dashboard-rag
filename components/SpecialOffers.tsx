@@ -4,7 +4,7 @@ export default function SpecialOffers() {
   return (
     <div className="mt-8 bg-slate-900/60 border border-slate-800 p-6 rounded-2xl backdrop-blur-md">
       <span className="font-mono text-[11px] text-amber-500 tracking-widest uppercase block mb-0.5">
-        ECOSYSTEM OFFERS
+        OFFERS
       </span>
       <h3 className="font-serif text-xl text-slate-100 font-normal mb-4">
         Penawaran Spesial & Layanan Tambahan
