@@ -54,7 +54,7 @@ export default function OutputPrompt({
           />
         ) : (
           <div className="flex items-center justify-center h-full bg-slate-950/80 border border-slate-800 rounded-xl font-mono text-xs text-slate-600">
-            Isi kriteria di sebelah kiri lalu klik "Generate Master Prompt".
+            Isi kriteria, lalu klik "Generate Master Prompt".
           </div>
         )}
       </div>
