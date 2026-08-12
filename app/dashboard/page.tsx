@@ -12,20 +12,27 @@ interface HistoryItem {
 }
 
 export default function DashboardPage() {
+  // Form State Kriteria
+  const [topik, setTopik] = useState('');
+  const [audiens, setAudiens] = useState('');
+  const [slides, setSlides] = useState('10');
+  const [status, setStatus] = useState('Belum ada / buatkan dari awal');
+  const [detail, setDetail] = useState('');
+
   const [prompt, setPrompt] = useState('');
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   
-  // State untuk Riwayat Prompt
+  // State Riwayat
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
 
   const router = useRouter();
 
-  // Proteksi Sesi & Ambil User ID
+  // Proteksi Sesi
   useEffect(() => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -40,7 +47,6 @@ export default function DashboardPage() {
     checkUser();
   }, [router]);
 
-  // Fungsi Ambil Riwayat dari Supabase
   const fetchHistory = async (uid: string) => {
     setLoadingHistory(true);
     const { data, error } = await supabase
@@ -60,19 +66,26 @@ export default function DashboardPage() {
     router.push('/');
   };
 
-  const handleGenerate = async (inputQuery?: string) => {
-    const query = inputQuery || prompt;
-    if (!query.trim()) return;
+  const handleGenerate = async (customQuery?: string) => {
+    // Racik prompt terstruktur jika tidak ada customQuery
+    const finalPrompt = customQuery || `Buatkan master prompt presentasi terstruktur dengan kriteria berikut:
+- Topik & Tujuan: ${topik}
+- Target Audiens: ${audiens}
+- Estimasi Jumlah Slide: ${slides} slide
+- Status Materi Konten: ${status}${detail.trim() ? `\n- Detail Tambahan: ${detail}` : ''}`;
+
+    if (!finalPrompt.trim()) return;
 
     setLoading(true);
     setResponse('');
     setCopied(false);
+    setPrompt(finalPrompt);
 
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: query }),
+        body: JSON.stringify({ prompt: finalPrompt }),
       });
 
       const data = await res.json();
@@ -81,16 +94,14 @@ export default function DashboardPage() {
       } else {
         setResponse(data.text);
         
-        // Simpan ke Supabase jika ada User ID
         if (userId) {
           await supabase.from('prompt_history').insert([
             {
               user_id: userId,
-              prompt: query,
+              prompt: finalPrompt,
               response: data.text,
             },
           ]);
-          // Refresh daftar riwayat
           fetchHistory(userId);
         }
       }
@@ -140,34 +151,115 @@ export default function DashboardPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Area Video Player */}
-        <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col justify-between border border-gray-200 min-h-[420px]">
-          <div>
-            <h2 className="font-bold text-gray-800 text-base mb-3">
-              🎬 Panduan & Tutorial PPT AI
-            </h2>
-            <div className="w-full aspect-video rounded-lg overflow-hidden border border-gray-200 bg-black">
-              <iframe
-                className="w-full h-full"
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
-                title="Tutorial PPT Prompt Generator"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Formulir Kriteria Presentasi */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+          <h2 className="font-bold text-gray-800 text-base mb-4 flex items-center gap-2">
+            ⚙️ Kriteria Presentasi
+          </h2>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleGenerate();
+            }}
+            className="space-y-4"
+          >
+            {/* Topik & Tujuan */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
+                Topik & Tujuan Presentasi <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                value={topik}
+                onChange={(e) => setTopik(e.target.value)}
+                placeholder="Contoh: Strategi Marketing Digital 2026 untuk UMKM"
+                className="w-full border border-gray-300 rounded-lg p-2.5 text-xs text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
-          </div>
-          <p className="text-xs text-gray-500 mt-3">
-            *Tonton video panduan di atas untuk mempelajari teknik prompt engineering pembuatan slide presentasi secara efektif.
-          </p>
+
+            {/* Target Audiens & Jumlah Slide */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Target Audiens <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={audiens}
+                  onChange={(e) => setAudiens(e.target.value)}
+                  placeholder="Contoh: Tim C-Level / Mahasiswa"
+                  className="w-full border border-gray-300 rounded-lg p-2.5 text-xs text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Estimasi Jumlah Slide <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="100"
+                  required
+                  value={slides}
+                  onChange={(e) => setSlides(e.target.value)}
+                  placeholder="10"
+                  className="w-full border border-gray-300 rounded-lg p-2.5 text-xs text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            {/* Status Materi Konten */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
+                Status Materi Konten
+              </label>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg p-2.5 text-xs text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="Belum ada / buatkan dari awal">Belum ada / buatkan dari awal</option>
+                <option value="Sudah ada poin kasar">Sudah ada poin kasar</option>
+                <option value="Materi lengkap 100%">Materi lengkap 100%</option>
+              </select>
+            </div>
+
+            {/* Detail Tambahan */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
+                Detail Tambahan <span className="text-gray-400 font-normal">(Opsional)</span>
+              </label>
+              <textarea
+                rows={3}
+                value={detail}
+                onChange={(e) => setDetail(e.target.value)}
+                placeholder="Contoh: Sertakan data statistik, gunakan bahasa semi-formal..."
+                className="w-full border border-gray-300 rounded-lg p-2.5 text-xs text-black focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg text-sm font-semibold disabled:opacity-50 transition-colors shadow-sm"
+            >
+              {loading ? 'Sedang Merancang Master Prompt...' : '✨ Generate Master Prompt'}
+            </button>
+          </form>
         </div>
 
-        {/* Area PPT Prompt Generator UI */}
-        <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col justify-between border border-gray-200 min-h-[420px]">
-          <div>
+        {/* Output & Video */}
+        <div className="space-y-6">
+          {/* Hasil Rancangan AI */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
             <div className="flex justify-between items-center mb-3">
               <h2 className="font-bold text-gray-800 text-base">
-                📊 PPT Prompt Generator AI
+                📊 Hasil Master Prompt AI
               </h2>
               {response && (
                 <button
@@ -179,8 +271,7 @@ export default function DashboardPage() {
               )}
             </div>
 
-            {/* Output Response */}
-            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 h-64 overflow-y-auto text-sm mb-4">
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 h-64 overflow-y-auto text-sm">
               {loading ? (
                 <div className="flex items-center justify-center h-full text-gray-400 text-xs animate-pulse">
                   Sedang merancang struktur slide PPT...
@@ -190,73 +281,35 @@ export default function DashboardPage() {
                   {response}
                 </p>
               ) : (
-                <div className="text-gray-400 italic text-xs space-y-2">
-                  <p>Masukkan topik, jumlah slide, atau audiens presentasi Anda.</p>
-                  <p className="font-semibold text-gray-500">Contoh permintaan:</p>
-                  <ul className="list-disc pl-4 space-y-1">
-                    <li>"Buatkan prompt presentasi 5 slide tentang Pitch Deck Startup."</li>
-                    <li>"Materi perkuliahan 7 slide topik Pemrograman Web."</li>
-                  </ul>
+                <div className="text-gray-400 italic text-xs flex items-center justify-center h-full">
+                  Isi kriteria di sebelah kiri lalu klik "Generate Master Prompt".
                 </div>
               )}
             </div>
           </div>
 
-          {/* Form Input & Quick Preset */}
-          <div className="space-y-3">
-            <div className="flex gap-2 text-xs overflow-x-auto pb-1">
-              <button
-                type="button"
-                onClick={() => setPrompt("Buatkan prompt presentasi 5 slide untuk Pitch Deck Investor Startup.")}
-                className="bg-gray-100 hover:bg-gray-200 border text-gray-700 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors"
-              >
-                💡 Pitch Deck (5 Slide)
-              </button>
-              <button
-                type="button"
-                onClick={() => setPrompt("Buatkan prompt presentasi 7 slide untuk Materi Edukasi Perkuliahan.")}
-                className="bg-gray-100 hover:bg-gray-200 border text-gray-700 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors"
-              >
-                📚 Edukasi (7 Slide)
-              </button>
+          {/* Video Player */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <h2 className="font-bold text-gray-800 text-base mb-3">
+              🎬 Panduan & Tutorial PPT AI
+            </h2>
+            <div className="w-full aspect-video rounded-lg overflow-hidden border border-gray-200 bg-black">
+              <iframe
+                className="w-full h-full"
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                title="Tutorial PPT Prompt Generator"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
             </div>
-
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleGenerate();
-              }}
-              className="flex gap-2 items-end"
-            >
-              <textarea
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleGenerate();
-                  }
-                }}
-                rows={2}
-                placeholder="Contoh: Presentasi 6 slide tentang Strategi Marketing..."
-                className="flex-1 border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-black resize-y min-h-[42px] max-h-36"
-              />
-              <button
-                type="submit"
-                disabled={loading}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50 transition-colors h-[42px] flex items-center justify-center"
-              >
-                {loading ? '...' : 'Rancang'}
-              </button>
-            </form>
           </div>
         </div>
       </div>
 
-      {/* Bagian Riwayat Prompt */}
+      {/* Tabel Riwayat */}
       <div className="mt-8 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
         <h3 className="font-bold text-gray-800 text-base mb-4 flex items-center gap-2">
-          🕒 Riwayat Prompt Anda
+          🕒 Riwayat Master Prompt Anda
         </h3>
 
         {loadingHistory ? (
@@ -284,7 +337,6 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-2 w-full md:w-auto justify-end">
                   <button
                     onClick={() => {
-                      setPrompt(item.prompt);
                       setResponse(item.response);
                     }}
                     className="text-xs bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors"
