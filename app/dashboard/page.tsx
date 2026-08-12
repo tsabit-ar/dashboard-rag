@@ -256,37 +256,45 @@ export default function DashboardPage() {
         {/* Output & Video */}
         <div className="space-y-6">
           {/* Hasil Rancangan AI */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="font-bold text-gray-800 text-base">
-                📊 Hasil Master Prompt AI
-              </h2>
-              {response && (
-                <button
-                  onClick={handleCopy}
-                  className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-md transition-colors font-medium flex items-center gap-1"
-                >
-                  {copied ? '✓ Tersalin!' : '📋 Salin Master Prompt'}
-                </button>
-              )}
-            </div>
+<div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+  <div className="flex justify-between items-center mb-3">
+    <h2 className="font-bold text-gray-800 text-base flex items-center gap-2">
+      📊 Hasil Master Prompt AI
+      {response && (
+        <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-normal">
+          Bisa Diedit
+        </span>
+      )}
+    </h2>
+    {response && (
+      <button
+        onClick={handleCopy}
+        className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-md transition-colors font-medium flex items-center gap-1"
+      >
+        {copied ? '✓ Tersalin!' : '📋 Salin Master Prompt'}
+      </button>
+    )}
+  </div>
 
-            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 h-64 overflow-y-auto text-sm">
-              {loading ? (
-                <div className="flex items-center justify-center h-full text-gray-400 text-xs animate-pulse">
-                  Sedang merancang struktur slide PPT...
-                </div>
-              ) : response ? (
-                <p className="whitespace-pre-wrap font-sans leading-relaxed text-gray-800 text-xs md:text-sm">
-                  {response}
-                </p>
-              ) : (
-                <div className="text-gray-400 italic text-xs flex items-center justify-center h-full">
-                  Isi kriteria di sebelah kiri lalu klik "Generate Master Prompt".
-                </div>
-              )}
-            </div>
-          </div>
+  <div className="h-64">
+    {loading ? (
+      <div className="flex items-center justify-center h-full bg-gray-50 rounded-lg border border-gray-200 text-gray-400 text-xs animate-pulse">
+        Sedang merancang struktur slide PPT...
+      </div>
+    ) : response ? (
+      <textarea
+        value={response}
+        onChange={(e) => setResponse(e.target.value)}
+        placeholder="Hasil prompt akan muncul di sini..."
+        className="w-full h-full bg-gray-50 p-4 rounded-lg border border-gray-200 text-xs md:text-sm font-sans leading-relaxed text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+      />
+    ) : (
+      <div className="text-gray-400 italic text-xs flex items-center justify-center h-full bg-gray-50 rounded-lg border border-gray-200">
+        Isi kriteria di sebelah kiri lalu klik "Generate Master Prompt".
+      </div>
+    )}
+  </div>
+</div>
 
           {/* Video Player */}
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
