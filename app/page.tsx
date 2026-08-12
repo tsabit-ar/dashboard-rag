@@ -9,7 +9,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [isSignUp, setIsSignUp] = useState(false);
   const router = useRouter();
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -18,21 +17,12 @@ export default function LoginPage() {
     setErrorMsg('');
 
     try {
-      if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-        });
-        if (error) throw error;
-        setErrorMsg('Registrasi berhasil! Silakan cek email Anda atau coba login.');
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) throw error;
-        router.push('/dashboard');
-      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw error;
+      router.push('/dashboard');
     } catch (err: any) {
       setErrorMsg(err.message || 'Terjadi kesalahan autentikasi.');
     } finally {
@@ -46,13 +36,13 @@ export default function LoginPage() {
         {/* Header */}
         <div className="text-center">
           <span className="font-mono text-[10px] text-amber-500 tracking-widest uppercase block mb-1">
-            SCAILE OPERATIONS / AUTHENTICATION
+            SELAMAT DATANG
           </span>
           <h1 className="font-serif text-3xl text-slate-100 font-normal">
             PPT Generator Hub
           </h1>
           <p className="font-mono text-xs text-slate-400 mt-2">
-            {isSignUp ? 'Buat akun baru untuk memulai' : 'Akses dashboard pembuatan master prompt'}
+            Akses dashboard pembuatan master prompt
           </p>
         </div>
 
@@ -98,25 +88,9 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full bg-amber-500 hover:bg-amber-400 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 font-mono text-xs font-bold py-3.5 rounded-lg transition-all uppercase tracking-wider shadow-lg shadow-amber-500/10 mt-2"
           >
-            {loading ? 'Authenticating...' : isSignUp ? 'Daftar Akun' : 'Masuk System'}
+            {loading ? 'Authenticating...' : 'Masuk System'}
           </button>
         </form>
-
-        {/* Toggle Login/SignUp */}
-        <div className="text-center pt-2 border-t border-slate-800/60">
-          <button
-            type="button"
-            onClick={() => {
-              setIsSignUp(!isSignUp);
-              setErrorMsg('');
-            }}
-            className="font-mono text-xs text-slate-400 hover:text-amber-400 transition-colors"
-          >
-            {isSignUp
-              ? 'Sudah punya akun? Masuk di sini'
-              : 'Belum punya akun? Buat akun baru'}
-          </button>
-        </div>
       </div>
     </div>
   );
