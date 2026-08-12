@@ -9,72 +9,115 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
   const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setErrorMsg('');
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setErrorMsg(error.message);
+    try {
+      if (isSignUp) {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+        if (error) throw error;
+        setErrorMsg('Registrasi berhasil! Silakan cek email Anda atau coba login.');
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+        router.push('/dashboard');
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Terjadi kesalahan autentikasi.');
+    } finally {
       setLoading(false);
-    } else {
-      router.push('/dashboard');
     }
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
-      <form
-        onSubmit={handleLogin}
-        className="w-full max-w-sm space-y-4 rounded-xl bg-white p-6 shadow-md border border-gray-200"
-      >
-        <h1 className="text-center text-xl font-bold text-gray-800">Login</h1>
+    <div className="min-h-screen bg-gradient-to-b from-[#0b132b] via-[#080d1e] to-[#04060d] flex items-center justify-center p-6 text-slate-200">
+      <div className="w-full max-w-md bg-slate-900/60 border border-slate-800 p-8 rounded-2xl backdrop-blur-md shadow-2xl space-y-6">
+        {/* Header */}
+        <div className="text-center">
+          <span className="font-mono text-[10px] text-amber-500 tracking-widest uppercase block mb-1">
+            SCAILE OPERATIONS / AUTHENTICATION
+          </span>
+          <h1 className="font-serif text-3xl text-slate-100 font-normal">
+            PPT Generator Hub
+          </h1>
+          <p className="font-mono text-xs text-slate-400 mt-2">
+            {isSignUp ? 'Buat akun baru untuk memulai' : 'Akses dashboard pembuatan master prompt'}
+          </p>
+        </div>
 
+        {/* Error / Alert Message */}
         {errorMsg && (
-          <div className="rounded bg-red-100 p-2 text-xs text-red-600 border border-red-200">
+          <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-center font-mono text-xs text-amber-400">
             {errorMsg}
           </div>
         )}
 
-        <div>
-          <label className="block text-xs font-medium text-gray-700">Email</label>
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full rounded-md border border-gray-300 p-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="nama@email.com"
-          />
-        </div>
+        {/* Form */}
+        <form onSubmit={handleAuth} className="space-y-4">
+          <div>
+            <label className="block font-mono text-xs text-slate-400 mb-1.5">
+              Alamat Email
+            </label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="nama@email.com"
+              className="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-3 font-mono text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all"
+            />
+          </div>
 
-        <div>
-          <label className="block text-xs font-medium text-gray-700">Password</label>
-          <input
-            type="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 w-full rounded-md border border-gray-300 p-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="••••••••"
-          />
-        </div>
+          <div>
+            <label className="block font-mono text-xs text-slate-400 mb-1.5">
+              Kata Sandi
+            </label>
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-3 font-mono text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all"
+            />
+          </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-md bg-blue-600 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
-        >
-          {loading ? 'Memproses...' : 'Login'}
-        </button>
-      </form>
-    </main>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-amber-500 hover:bg-amber-400 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 font-mono text-xs font-bold py-3.5 rounded-lg transition-all uppercase tracking-wider shadow-lg shadow-amber-500/10 mt-2"
+          >
+            {loading ? 'Authenticating...' : isSignUp ? 'Daftar Akun' : 'Masuk System'}
+          </button>
+        </form>
+
+        {/* Toggle Login/SignUp */}
+        <div className="text-center pt-2 border-t border-slate-800/60">
+          <button
+            type="button"
+            onClick={() => {
+              setIsSignUp(!isSignUp);
+              setErrorMsg('');
+            }}
+            className="font-mono text-xs text-slate-400 hover:text-amber-400 transition-colors"
+          >
+            {isSignUp
+              ? 'Sudah punya akun? Masuk di sini'
+              : 'Belum punya akun? Buat akun baru'}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
