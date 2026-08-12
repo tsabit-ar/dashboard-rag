@@ -11,6 +11,16 @@ interface HistoryItem {
   created_at: string;
 }
 
+interface AiTool {
+  id: string;
+  name: string;
+  description: string;
+  badge?: string;
+  url: string;
+  is_internal: boolean;
+  sort_order: number;
+}
+
 export default function DashboardPage() {
   // Form State Kriteria
   const [topik, setTopik] = useState('');
@@ -19,20 +29,22 @@ export default function DashboardPage() {
   const [status, setStatus] = useState('Belum ada / buatkan dari awal');
   const [detail, setDetail] = useState('');
 
+  // AI & Response State
   const [prompt, setPrompt] = useState('');
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
-  
-  // State Riwayat
+
+  // Supabase Data State
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
+  const [aiTools, setAiTools] = useState<AiTool[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
 
   const router = useRouter();
 
-  // Proteksi Sesi
+  // Proteksi Sesi & Ambil Data
   useEffect(() => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -42,11 +54,13 @@ export default function DashboardPage() {
         setUserId(session.user.id);
         setCheckingAuth(false);
         fetchHistory(session.user.id);
+        fetchAiTools();
       }
     };
     checkUser();
   }, [router]);
 
+  // Fetch Riwayat Prompt dari Supabase
   const fetchHistory = async (uid: string) => {
     setLoadingHistory(true);
     const { data, error } = await supabase
@@ -61,13 +75,24 @@ export default function DashboardPage() {
     setLoadingHistory(false);
   };
 
+  // Fetch AI Tools dari Supabase
+  const fetchAiTools = async () => {
+    const { data, error } = await supabase
+      .from('ai_tools')
+      .select('*')
+      .order('sort_order', { ascending: true });
+
+    if (!error && data) {
+      setAiTools(data);
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push('/');
   };
 
   const handleGenerate = async (customQuery?: string) => {
-    // Racik prompt terstruktur jika tidak ada customQuery
     const finalPrompt = customQuery || `Buatkan master prompt presentasi terstruktur dengan kriteria berikut:
 - Topik & Tujuan: ${topik}
 - Target Audiens: ${audiens}
@@ -93,7 +118,7 @@ export default function DashboardPage() {
         setResponse(`Error: ${data.error}`);
       } else {
         setResponse(data.text);
-        
+
         if (userId) {
           await supabase.from('prompt_history').insert([
             {
@@ -152,7 +177,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Formulir Kriteria Presentasi */}
+        {/* Kolom Kiri: Formulir Kriteria Presentasi */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
           <h2 className="font-bold text-gray-800 text-base mb-4 flex items-center gap-2">
             ⚙️ Kriteria Presentasi
@@ -253,50 +278,50 @@ export default function DashboardPage() {
           </form>
         </div>
 
-        {/* Output & Video */}
+        {/* Kolom Kanan: Output AI, Video, & AI Tools */}
         <div className="space-y-6">
-          {/* Hasil Rancangan AI */}
-<div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-  <div className="flex justify-between items-center mb-3">
-    <h2 className="font-bold text-gray-800 text-base flex items-center gap-2">
-      📊 Hasil Master Prompt AI
-      {response && (
-        <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-normal">
-          Bisa Diedit
-        </span>
-      )}
-    </h2>
-    {response && (
-      <button
-        onClick={handleCopy}
-        className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-md transition-colors font-medium flex items-center gap-1"
-      >
-        {copied ? '✓ Tersalin!' : '📋 Salin Master Prompt'}
-      </button>
-    )}
-  </div>
+          {/* Hasil Rancangan AI (Editable Textarea) */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="font-bold text-gray-800 text-base flex items-center gap-2">
+                📊 Hasil Master Prompt AI
+                {response && (
+                  <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-normal">
+                    Bisa Diedit
+                  </span>
+                )}
+              </h2>
+              {response && (
+                <button
+                  onClick={handleCopy}
+                  className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-md transition-colors font-medium flex items-center gap-1"
+                >
+                  {copied ? '✓ Tersalin!' : '📋 Salin Master Prompt'}
+                </button>
+              )}
+            </div>
 
-  <div className="h-64">
-    {loading ? (
-      <div className="flex items-center justify-center h-full bg-gray-50 rounded-lg border border-gray-200 text-gray-400 text-xs animate-pulse">
-        Sedang merancang struktur slide PPT...
-      </div>
-    ) : response ? (
-      <textarea
-        value={response}
-        onChange={(e) => setResponse(e.target.value)}
-        placeholder="Hasil prompt akan muncul di sini..."
-        className="w-full h-full bg-gray-50 p-4 rounded-lg border border-gray-200 text-xs md:text-sm font-sans leading-relaxed text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-      />
-    ) : (
-      <div className="text-gray-400 italic text-xs flex items-center justify-center h-full bg-gray-50 rounded-lg border border-gray-200">
-        Isi kriteria di sebelah kiri lalu klik "Generate Master Prompt".
-      </div>
-    )}
-  </div>
-</div>
+            <div className="h-64">
+              {loading ? (
+                <div className="flex items-center justify-center h-full bg-gray-50 rounded-lg border border-gray-200 text-gray-400 text-xs animate-pulse">
+                  Sedang merancang struktur slide PPT...
+                </div>
+              ) : response ? (
+                <textarea
+                  value={response}
+                  onChange={(e) => setResponse(e.target.value)}
+                  placeholder="Hasil prompt akan muncul di sini..."
+                  className="w-full h-full bg-gray-50 p-4 rounded-lg border border-gray-200 text-xs md:text-sm font-sans leading-relaxed text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                />
+              ) : (
+                <div className="text-gray-400 italic text-xs flex items-center justify-center h-full bg-gray-50 rounded-lg border border-gray-200">
+                  Isi kriteria di sebelah kiri lalu klik "Generate Master Prompt".
+                </div>
+              )}
+            </div>
+          </div>
 
-          {/* Video Player */}
+          {/* Video Player Tutorial */}
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
             <h2 className="font-bold text-gray-800 text-base mb-3">
               🎬 Panduan & Tutorial PPT AI
@@ -311,10 +336,49 @@ export default function DashboardPage() {
               ></iframe>
             </div>
           </div>
+
+          {/* Rekomendasi AI Tools Eksekusi (Dinamis dari Supabase) */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <h2 className="font-bold text-gray-800 text-base mb-4 flex items-center gap-2">
+              🤖 Rekomendasi AI Tools Eksekusi
+            </h2>
+            <div className="space-y-3">
+              {aiTools.length === 0 ? (
+                <div className="text-xs text-gray-400 italic">Memuat daftar AI Tools...</div>
+              ) : (
+                aiTools.map((tool) => (
+                  <div
+                    key={tool.id}
+                    className="p-3.5 bg-gray-50 rounded-lg border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-bold text-xs text-gray-800">{tool.name}</span>
+                        {tool.badge && (
+                          <span className="text-[10px] bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded-full">
+                            {tool.badge}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-600 leading-relaxed">{tool.description}</p>
+                    </div>
+                    <a
+                      href={tool.url}
+                      target={tool.is_internal ? '_self' : '_blank'}
+                      rel={tool.is_internal ? undefined : 'noopener noreferrer'}
+                      className="text-xs bg-blue-600 hover:bg-blue-700 text-white font-medium px-3.5 py-1.5 rounded-md transition-colors whitespace-nowrap self-end sm:self-center"
+                    >
+                      {tool.is_internal ? 'Buka Panduan' : 'Kunjungi Web ↗'}
+                    </a>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Tabel Riwayat */}
+      {/* Bagian Bawah: Tabel Riwayat Master Prompt */}
       <div className="mt-8 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
         <h3 className="font-bold text-gray-800 text-base mb-4 flex items-center gap-2">
           🕒 Riwayat Master Prompt Anda
