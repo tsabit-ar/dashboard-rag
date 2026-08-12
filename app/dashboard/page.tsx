@@ -4,26 +4,56 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 
+interface HistoryItem {
+  id: string;
+  prompt: string;
+  response: string;
+  created_at: string;
+}
+
 export default function DashboardPage() {
   const [prompt, setPrompt] = useState('');
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  
+  // State untuk Riwayat Prompt
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
+
   const router = useRouter();
 
-  // Proteksi Sesi: Tendang keluar jika belum login
+  // Proteksi Sesi & Ambil User ID
   useEffect(() => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         router.push('/');
       } else {
+        setUserId(session.user.id);
         setCheckingAuth(false);
+        fetchHistory(session.user.id);
       }
     };
     checkUser();
   }, [router]);
+
+  // Fungsi Ambil Riwayat dari Supabase
+  const fetchHistory = async (uid: string) => {
+    setLoadingHistory(true);
+    const { data, error } = await supabase
+      .from('prompt_history')
+      .select('*')
+      .eq('user_id', uid)
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      setHistory(data);
+    }
+    setLoadingHistory(false);
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -50,11 +80,32 @@ export default function DashboardPage() {
         setResponse(`Error: ${data.error}`);
       } else {
         setResponse(data.text);
+        
+        // Simpan ke Supabase jika ada User ID
+        if (userId) {
+          await supabase.from('prompt_history').insert([
+            {
+              user_id: userId,
+              prompt: query,
+              response: data.text,
+            },
+          ]);
+          // Refresh daftar riwayat
+          fetchHistory(userId);
+        }
       }
     } catch (err) {
       setResponse('Terjadi kesalahan jaringan.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteHistory = async (id: string) => {
+    if (!userId) return;
+    const { error } = await supabase.from('prompt_history').delete().eq('id', id);
+    if (!error) {
+      setHistory(history.filter((item) => item.id !== id));
     }
   };
 
@@ -202,6 +253,57 @@ export default function DashboardPage() {
             </form>
           </div>
         </div>
+      </div>
+
+      {/* Bagian Riwayat Prompt */}
+      <div className="mt-8 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <h3 className="font-bold text-gray-800 text-base mb-4 flex items-center gap-2">
+          🕒 Riwayat Master Prompt Anda
+        </h3>
+
+        {loadingHistory ? (
+          <div className="text-xs text-gray-400 animate-pulse">Memuat riwayat...</div>
+        ) : history.length === 0 ? (
+          <div className="text-xs text-gray-400 italic">Belum ada riwayat prompt yang tersimpan.</div>
+        ) : (
+          <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+            {history.map((item) => (
+              <div
+                key={item.id}
+                className="p-3.5 bg-gray-50 rounded-lg border border-gray-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 hover:bg-gray-100 transition-colors"
+              >
+                <div className="flex-1 overflow-hidden">
+                  <p className="text-xs font-semibold text-gray-800 truncate mb-1">
+                    "{item.prompt}"
+                  </p>
+                  <p className="text-[11px] text-gray-500">
+                    {new Date(item.created_at).toLocaleString('id-ID', {
+                      dateStyle: 'medium',
+                      timeStyle: 'short',
+                    })}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 w-full md:w-auto justify-end">
+                  <button
+                    onClick={() => {
+                      setPrompt(item.prompt);
+                      setResponse(item.response);
+                    }}
+                    className="text-xs bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1.5 rounded-md font-medium transition-colors"
+                  >
+                    Buka Hasil
+                  </button>
+                  <button
+                    onClick={() => handleDeleteHistory(item.id)}
+                    className="text-xs bg-red-50 hover:bg-red-100 text-red-600 px-2.5 py-1.5 rounded-md font-medium transition-colors"
+                  >
+                    Hapus
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
