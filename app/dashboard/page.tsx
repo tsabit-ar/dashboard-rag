@@ -158,7 +158,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <p className="text-xs text-gray-500 mt-3">
-            *Tonton video panduan di atas untuk mempelajari teknik *prompt engineering* pembuatan slide presentasi secara efektif.
+            *Tonton video panduan di atas untuk mempelajari teknik prompt engineering pembuatan slide presentasi secara efektif.
           </p>
         </div>
 
@@ -207,22 +207,14 @@ export default function DashboardPage() {
             <div className="flex gap-2 text-xs overflow-x-auto pb-1">
               <button
                 type="button"
-                onClick={() => {
-                  const text = "Buatkan prompt presentasi 5 slide untuk Pitch Deck Investor Startup.";
-                  setPrompt(text);
-                  handleGenerate(text);
-                }}
+                onClick={() => setPrompt("Buatkan prompt presentasi 5 slide untuk Pitch Deck Investor Startup.")}
                 className="bg-gray-100 hover:bg-gray-200 border text-gray-700 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors"
               >
                 💡 Pitch Deck (5 Slide)
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  const text = "Buatkan prompt presentasi 7 slide untuk Materi Edukasi Perkuliahan.";
-                  setPrompt(text);
-                  handleGenerate(text);
-                }}
+                onClick={() => setPrompt("Buatkan prompt presentasi 7 slide untuk Materi Edukasi Perkuliahan.")}
                 className="bg-gray-100 hover:bg-gray-200 border text-gray-700 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors"
               >
                 📚 Edukasi (7 Slide)
@@ -234,19 +226,25 @@ export default function DashboardPage() {
                 e.preventDefault();
                 handleGenerate();
               }}
-              className="flex gap-2"
+              className="flex gap-2 items-end"
             >
-              <input
-                type="text"
+              <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleGenerate();
+                  }
+                }}
+                rows={2}
                 placeholder="Contoh: Presentasi 6 slide tentang Strategi Marketing..."
-                className="flex-1 border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                className="flex-1 border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-black resize-y min-h-[42px] max-h-36"
               />
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50 transition-colors"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50 transition-colors h-[42px] flex items-center justify-center"
               >
                 {loading ? '...' : 'Rancang'}
               </button>
