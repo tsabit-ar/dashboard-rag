@@ -427,6 +427,81 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+
+{/* Bagian Penawaran Spesial / Offer */}
+<div className="mt-8 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+  <h3 className="font-bold text-gray-800 text-base mb-4 flex items-center gap-2">
+    🎁 Penawaran Spesial & Layanan Tambahan
+  </h3>
+
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    {/* Offer 1: Aktif */}
+    <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl flex flex-col justify-between">
+      <div>
+        <span className="text-[10px] bg-blue-600 text-white font-semibold px-2 py-0.5 rounded-full uppercase">
+          Rekomendasi
+        </span>
+        <h4 className="font-bold text-sm text-gray-800 mt-2">
+          Akses Premium All-in-One
+        </h4>
+        <p className="text-xs text-gray-600 mt-1 leading-relaxed">
+          Akses AI dan Tools banyak lainnya + Streaming Beberapa Platform
+        </p>
+      </div>
+      <a
+        href="https://lynk.id/noahproject1/veoe8k297pnm"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-4 text-center text-xs bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition-colors"
+      >
+        Lihat Penawaran ↗
+      </a>
+    </div>
+
+    {/* Offer 2: Coming Soon */}
+    <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl flex flex-col justify-between opacity-75">
+      <div>
+        <span className="text-[10px] bg-gray-200 text-gray-600 font-semibold px-2 py-0.5 rounded-full uppercase">
+          Mendatang
+        </span>
+        <h4 className="font-bold text-sm text-gray-500 mt-2">
+          Segera Hadir
+        </h4>
+        <p className="text-xs text-gray-400 mt-1 leading-relaxed">
+          Layanan eksklusif tambahan sedang disiapkan untuk Anda.
+        </p>
+      </div>
+      <button
+        disabled
+        className="mt-4 text-center text-xs bg-gray-200 text-gray-400 font-semibold py-2 rounded-lg cursor-not-allowed"
+      >
+        Coming Soon
+      </button>
+    </div>
+
+    {/* Offer 3: Coming Soon */}
+    <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl flex flex-col justify-between opacity-75">
+      <div>
+        <span className="text-[10px] bg-gray-200 text-gray-600 font-semibold px-2 py-0.5 rounded-full uppercase">
+          Mendatang
+        </span>
+        <h4 className="font-bold text-sm text-gray-500 mt-2">
+          Segera Hadir
+        </h4>
+        <p className="text-xs text-gray-400 mt-1 leading-relaxed">
+          Layanan eksklusif tambahan sedang disiapkan untuk Anda.
+        </p>
+      </div>
+      <button
+        disabled
+        className="mt-4 text-center text-xs bg-gray-200 text-gray-400 font-semibold py-2 rounded-lg cursor-not-allowed"
+      >
+        Coming Soon
+      </button>
+    </div>
+  </div>
+</div>
+
     </div>
   );
 }
