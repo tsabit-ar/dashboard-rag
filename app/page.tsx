@@ -39,7 +39,7 @@ export default function LoginPage() {
             SELAMAT DATANG
           </span>
           <h1 className="font-serif text-3xl text-slate-100 font-normal">
-            PPT PromptGenerator
+            PPT Prompt Generator
           </h1>
           <p className="font-mono text-xs text-slate-400 mt-2">
             Akses dashboard pembuatan ppt prompt
