@@ -8,6 +8,7 @@ import OutputPrompt from '@/components/OutputPrompt';
 import AiToolsList from '@/components/AiToolsList';
 import SpecialOffers from '@/components/SpecialOffers';
 import HistoryList from '@/components/HistoryList';
+import CanvaBonus from '@/components/CanvaBonus';
 
 interface HistoryItem {
   id: string;
@@ -205,6 +206,8 @@ export default function DashboardPage() {
       />
 
       <SpecialOffers />
+      
+      <CanvaBonus />
     </div>
   );
 }
