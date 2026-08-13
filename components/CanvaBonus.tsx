@@ -15,7 +15,7 @@ export default function CanvaBonus() {
         </p>
       </div>
       <a
-        href="https://drive.google.com/drive/folders/PASTE_LINK_DRIVE_ANDA_DISINI"
+        href="https://drive.google.com/drive/folders/1KVgIH8zWY3aYKwM7vxv7UbKd6MqNbJV7?usp=drive_link"
         target="_blank"
         rel="noopener noreferrer"
         className="font-mono text-xs bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-5 py-3 rounded-xl transition-all whitespace-nowrap shadow-lg shadow-amber-500/10 self-end sm:self-center"
