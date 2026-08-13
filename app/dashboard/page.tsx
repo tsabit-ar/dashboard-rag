@@ -122,6 +122,15 @@ export default function DashboardPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // Handler auto-scroll saat memilih riwayat
+  const handleSelectHistory = (selectedResponse: string) => {
+    setResponse(selectedResponse);
+    const outputElement = document.getElementById('output-prompt-section');
+    if (outputElement) {
+      outputElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   if (checkingAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#080d1e] font-mono text-xs text-slate-500">
@@ -201,7 +210,7 @@ export default function DashboardPage() {
       <HistoryList
         history={history}
         loadingHistory={loadingHistory}
-        onSelect={(res) => setResponse(res)}
+        onSelect={handleSelectHistory}
         onDelete={handleDeleteHistory}
       />
 

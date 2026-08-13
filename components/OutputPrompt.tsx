@@ -16,7 +16,10 @@ export default function OutputPrompt({
   handleCopy,
 }: OutputPromptProps) {
   return (
-    <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl backdrop-blur-md">
+    <div
+      id="output-prompt-section"
+      className="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl backdrop-blur-md"
+    >
       <div className="flex justify-between items-center mb-4">
         <div>
           <span className="font-mono text-[11px] text-amber-500 tracking-widest uppercase block mb-0.5">
@@ -54,7 +57,7 @@ export default function OutputPrompt({
           />
         ) : (
           <div className="flex items-center justify-center h-full bg-slate-950/80 border border-slate-800 rounded-xl font-mono text-xs text-slate-600">
-            Isi kriteria, lalu klik "Generate Master Prompt".
+            Isi kriteria di sebelah kiri lalu klik "Generate Master Prompt".
           </div>
         )}
       </div>
