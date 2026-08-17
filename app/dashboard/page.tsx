@@ -49,6 +49,48 @@ export default function DashboardPage() {
     checkUser();
   }, [router]);
 
+  // Auto-Logout setelah 3 Jam Inaktivitas (3 * 60 * 60 * 1000 ms)
+useEffect(() => {
+  if (checkingAuth) return;
+
+  const INACTIVITY_LIMIT = 3 * 60 * 60 * 1000; // 3 Jam
+  let timer: NodeJS.Timeout;
+
+  const performAutoLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/');
+  };
+
+  const resetInactivityTimer = () => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(performAutoLogout, INACTIVITY_LIMIT);
+  };
+
+  // Daftar event interaksi pengguna yang mereset timer
+  const activityEvents = [
+    'mousedown',
+    'keydown',
+    'scroll',
+    'touchstart',
+    'click',
+  ];
+
+  activityEvents.forEach((event) => {
+    window.addEventListener(event, resetInactivityTimer);
+  });
+
+  // Jalankan timer awal
+  resetInactivityTimer();
+
+  // Bersihkan listener dan timer saat unmount
+  return () => {
+    if (timer) clearTimeout(timer);
+    activityEvents.forEach((event) => {
+      window.removeEventListener(event, resetInactivityTimer);
+    });
+  };
+}, [checkingAuth, router]);
+
   const fetchHistory = async (uid: string) => {
     setLoadingHistory(true);
     const { data } = await supabase
