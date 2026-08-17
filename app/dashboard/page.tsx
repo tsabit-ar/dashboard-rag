@@ -195,7 +195,7 @@ export default function DashboardPage() {
             <div className="w-full aspect-video rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
               <iframe
                 className="w-full h-full"
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                src="https://www.youtube.com/embed/VlL9b9AkHyQ"
                 title="Tutorial PPT Prompt Generator"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
