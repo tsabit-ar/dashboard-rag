@@ -201,6 +201,42 @@ useEffect(() => {
         </button>
       </div>
 
+      {/* Quick Guide / Cara Pakai */}
+      <div className="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl mb-6 backdrop-blur-md">
+        <span className="font-mono text-[10px] text-amber-500 tracking-widest uppercase block mb-1">
+          QUICK GUIDE
+        </span>
+        <h2 className="font-serif text-xl text-slate-100 font-normal mb-3">
+          Cara Pakai
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-xl">
+            <h3 className="font-mono text-xs font-bold text-amber-400 mb-1">
+              01. Masukkan Kriteria
+            </h3>
+            <p className="font-mono text-xs text-slate-400 leading-relaxed">
+              Isi topik presentasi, profil audiens, perkiraan jumlah slide, dan kelengkapan materi pada formulir sebelah kiri.
+            </p>
+          </div>
+          <div className="p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-xl">
+            <h3 className="font-mono text-xs font-bold text-amber-400 mb-1">
+              02. Generate & Sesuaikan
+            </h3>
+            <p className="font-mono text-xs text-slate-400 leading-relaxed">
+              Klik tombol generate. Teks prompt terstruktur akan muncul di panel kanan dan dapat Anda edit langsung sebelum disalin.
+            </p>
+          </div>
+          <div className="p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-xl">
+            <h3 className="font-mono text-xs font-bold text-amber-400 mb-1">
+              03. Eksekusi ke AI Tools
+            </h3>
+            <p className="font-mono text-xs text-slate-400 leading-relaxed">
+              Klik tombol &apos;Copy Prompt&apos; dan tempelkan langsung ke Google Gemini, Prezi AI, Canva, atau panduan yang tersedia.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <FormKriteria
           topik={topik}
