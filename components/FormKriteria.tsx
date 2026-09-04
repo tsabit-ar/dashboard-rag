@@ -120,7 +120,7 @@ export default function FormKriteria({
             rows={3}
             value={detail}
             onChange={(e) => setDetail(e.target.value)}
-            placeholder="Sertakan data statistik, bahasa semi-formal..."
+            placeholder="Sertakan data statistik, bahasa semi-formal, atau jika memiliki materi dari pdf bisa di tempel disini"
             className="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2.5 font-mono text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all resize-y"
           />
         </div>
