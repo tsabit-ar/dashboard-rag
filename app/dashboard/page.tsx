@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import FormKriteria from '@/components/FormKriteria';
 import OutputPrompt from '@/components/OutputPrompt';
 import AiToolsList from '@/components/AiToolsList';
-import SpecialOffers from '@/components/SpecialOffers';
 import HistoryList from '@/components/HistoryList';
 import CanvaBonus from '@/components/CanvaBonus';
 
@@ -292,8 +291,6 @@ useEffect(() => {
         onDelete={handleDeleteHistory}
       />
 
-      <SpecialOffers />
-      
       <CanvaBonus />
     </div>
   );
